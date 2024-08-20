@@ -1,89 +1,127 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import './Cards.css'; 
+import OpenedCard from './OpenedCard';
 
-const Cards = () => {
-  const [cards,setCards] = useState([]);
-  const [error,setError] = useState("");
-  const [formOpen,setFormOpen] = useState(false);
-
-  useEffect(() =>{
-    fetch(`http://localhost:5100/get/cards`,{
-      method:"GET",
+const Cards = ({searchKey}) => {
+  const [cards, setCards] = useState([]);
+  const [searchedCards, setSearchedCards] = useState([]);
+  const [error, setError] = useState("");
+  const [id, setId] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [openedCard,setOpenedCard] = useState(false);
+  
+  useEffect(() => {
+    fetch('http://localhost:5100/get/cards', {
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json"
-      }
-    }).then(res => res.json())
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res => res.json())
     .then(data => {
-      setCards(data);
+      console.log("searchKey :",searchKey)
+      if(searchKey){
+        const filterData = cards.filter(item => {
+          const title = item.title || '';
+          const description = item.description || '';
+          
+          return [title, description].some(value =>
+            value.toLowerCase().includes(searchKey)
+          );
+        });
+        console.log("Filtered Data :",filterData)
+        setSearchedCards(filterData)
+      }else{
+        setCards(data);
+        setSearchedCards(data);
+      }
+      setError("")
     })
     .catch(error => {
-      console.log("Error :",error);
-      setError(error)
-    })
-  },[])
+      console.error('Error:', error);
+      setError('Failed to fetch cards.');
+    });    
+  }, [searchKey]);
 
-  
-  const handleToggle = () =>{
-    {formOpen ? setFormOpen(false) : setFormOpen(true)}
-  }
-  const handleSubmit = (e) =>{
+  const handleToggle = () => {
+    setFormOpen(prevFormOpen => !prevFormOpen);
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
     const title = form.title.value;
     const description = form.description.value;
-    fetch(`http://localhost:5100/post/cards`,{
-      method: "POST",
+
+    fetch('http://localhost:5100/post/cards', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
       },
-      body:JSON.stringify({title,description})
-    }).then(res => {
-      return res.json()
+      body: JSON.stringify({ title, description }),
     })
-    .then(info => {
-      alert(info.message)
-    }).catch(error =>{
-      alert(error)
-    })
-  }
+      .then(res => res.json())
+      .then(info => {
+        alert(info.message);
+        setFormOpen(false); 
+        return fetch('http://localhost:5100/get/cards').then(res => res.json()).then(data => setCards(data));
+      })
+      .catch(error => {
+        alert('Failed to add card.');
+        console.error('Error:', error);
+      });
+  };
+
   return (
-    <div className='pt-2'>
-      <div className='d-grid justify-content-center w-100 h-100'>
-        {
-          !formOpen && 
-          <button style={{position:"absolute",right:"60px"}} onClick={handleToggle} className='bi bi-plus'>
-          Add a Card
-          </button>
-        }
-        {
-          formOpen && 
-          <button style={{position:"absolute",right:"390px"}} onClick={handleToggle} className='btn btn-close'> 
-          </button>
-        }
-        {formOpen && 
-          <div style={{width:"450px",height:"fit-content"}}>
-            <form onSubmit={handleSubmit} className=' p-2 border border-2 border-black m-3 d-grid justify-content-center'>
-              <label htmlFor="title" className='fw-bold fs-5'>Tiltle :</label>
-              <input type="text" name='title' id='title' className='mb-3 p-1' style={{width:"300px"}}/>
-              <label htmlFor="description" className='fw-bold fs-5'>Description :  </label>
-              <textarea type="text" name='description' id='description' className='p-2' style={{width:"300px",height:"80px"}}/>
-              <button className='mt-3 fw-bolder'>Submit</button>
+    <div className='p-2'>
+      <div className={`cards-container ${openedCard ? "d-none" : "d-block"}`}>
+        <div className="form-toggle">
+          {!formOpen && (
+            <button onClick={handleToggle} className="btn btn-primary bi bi-plus">
+              Add a Card
+            </button>
+          )}
+          {formOpen && (
+            <button onClick={handleToggle} className="btn btn-close">
+            </button>
+          )}
+        </div>
+        {formOpen && (
+          <div className="form-container">
+            <form onSubmit={handleSubmit} className="form">
+              <label htmlFor="title" className="form-label">
+                Title:
+              </label>
+              <input type="text" name="title" id="title" className="form-input" required />
+              <label htmlFor="description" className="form-label">
+                Description:
+              </label>
+              <textarea name="description" id="description" className="form-textarea" required />
+              <button type="submit" className="btn btn-submit">
+                Submit
+              </button>
             </form>
           </div>
-        } 
+        )}
+        <div className="cards-grid">
+          {searchedCards.length>0 ? searchedCards.map(card => (
+              <div key={card.id} className="card" style={{cursor:"pointer"}} onClick={() => {
+                setId(card.id)
+                setOpenedCard(true)
+                }}>
+                <h5 className="card-title">{card.title}</h5>
+                <p className="card-description">{card.description}</p>
+              </div>
+          )) : "No cards Available!"}
+        </div>
+        {error && <div className="error-message">{error}</div>}
       </div>
-      <div className='p-3 d-flex align-items-center justify-content-center'>
-        {
-          cards.map(card => 
-            <div key={card.id} style={{width:"400px", height:"100px",overflow:"auto"}} className='m-2 rounded  border border-2 border-black'>
-              <h5>{card.title}</h5>
-              <p>{card.description}</p>
-            </div>
-          )
-        }
+      <div className={`${openedCard ? "d-block" : "d-none"}`}>
+        <OpenedCard id={id} setOpenedCard={setOpenedCard}/>
       </div>
-      {error && <span className='text-danger'>error</span>}
     </div>
-  )
-}
+  );
+};
 
-export default Cards
+export default Cards;
+

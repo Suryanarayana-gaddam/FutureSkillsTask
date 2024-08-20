@@ -37,14 +37,14 @@ const Footer = () => {
       <div className='h-100'>
         <div className='h-50'></div>
         <div className='inner-div1'>
-          <p className='position-relative bottom-75'>
+          <div className='position-relative bottom-75'>
             <div className='icon bg-white p-3 rounded-3 me-1'>
                 <div style={{width:"19px"}} className='icon-square p-2 bg-white fw-bold'>
                     <div style={{width:"14px"}} className='icon-circle border border-3 border-black rounded-5 fw-bold'>
                     </div>
                 </div>
             </div>
-          </p>
+          </div>
           <small>
             Copyright 2022
           </small>

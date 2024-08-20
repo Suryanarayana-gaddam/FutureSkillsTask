@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 const Header = () => {
   return (
     <div className='main-div bg-black d-flex justify-content-between px-5 py-2 rounded-top-4'>
@@ -9,13 +8,13 @@ const Header = () => {
                     </div>
                 </div>
             </div>
-            <div className='ms-2 fs-4'>
-                <Link to={"/"} className="text-white text-decoration-none">Absrtact</Link>
+            <div className='ms-2 fs-4 text-white'>
+            Absrtact
             </div>
             <div className='ms-3 mt-1 h-100 border '>
             </div>
             <div className='ms-3 fs-4 text-white'>
-            <Link to={"/"} className="text-white text-decoration-none">Help&nbsp;Center</Link>
+            Help&nbsp;Center
             </div>
         </div>
         <div className='text-primary shadow'>
