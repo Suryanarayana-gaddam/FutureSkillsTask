@@ -15,8 +15,8 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/your-repository.git
-   cd your-repository
+   git clone https://github.com/Suryanarayana-gaddam/FutureSkillsTask.git
+   cd FutureSkillsTask
 Navigate to the backend directory:
 
 Install backend dependencies:
